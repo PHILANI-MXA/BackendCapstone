@@ -6,7 +6,8 @@ const app = express();
 const router = express.Router();
 const path = require('path');
 const cors = require('cors');
-const { hash, hashSync, compare } = require('bcrypt');
+const { hash, hashSync, compare, compareSync } = require('bcrypt');
+
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 
@@ -45,26 +46,27 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
       });
     } else {
       res.json({
-        status: 200,
+        status: 201,
         res: `user with the name: ${firstName} added to the database!`
       });
     }
   });
 });
 // Compare function
-async function comparePassword (password, encrypted, res) {
+async function comparePassword(password, encrypted, res) {
   await compare(password, encrypted, (err, results) => {
     if (err) {
       throw err;
     }
     const payload = {
+      user_id: results[0].user_id,
       firstName: results[0].firstName,
       lastName: results[0].lastName,
       email: results[0].email,
       password: results[0].password
     };
     jwt.sign(payload, process.env.jwtsecret, {
-      expiresIn: '1d'
+      expiresIn: '7d'
     }, (err, token) => {
       if (err) throw err;
       res.status(200).json({
@@ -76,6 +78,47 @@ async function comparePassword (password, encrypted, res) {
   });
 }
 // Login users
+
+// router.post('/users/login', bodyParser.json(), (req, res) => {
+//   const sql = 'SELECT * FROM users WHERE email? like';
+//   const email = {
+//     email: req.body.email
+//   };
+//   db.query(sql, email.email, async (err, results) => {
+//     if (err) throw err;
+//     if (results.length === 0) {
+//       res.send('No email found');
+//     } else {
+//       const isMatch = await bcrypt.comparePassword(req.body.password, results[0].password);
+//       if (!isMatch) {
+//         res.send('Password is Incorrect');
+//       } else {
+//         const payload = {
+//           user: {
+//             user_id: results[0].user_id,
+//             firstName: results[0].firstName,
+//             lastName: results[0].lastName,
+//             email: results[0].email,
+//             password: results[0].password
+//           }
+//         };
+//         jwt.sign(payload, process.env.jwtsecret, {
+//           expiresIn: '1d'
+//         }, (err, token) => {
+//           if (err) throw err;
+//           res.send(token);
+//           res.json({
+//             msg: results,
+//             token
+//           });
+//         // res.status(200).send("Logged in");
+//         });
+//       }
+//     }
+//   });
+// });
+
+// ---------------------------------------------------------------------------------------
 router.post('/users/login', bodyParser.json(), (req, res) => {
   const { email, password } = req.body;
   const sql = `SELECT * FROM users WHERE email = '${email}';`;
@@ -89,53 +132,57 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
       console.log('Running');
       comparePassword(password, results[0].password);
       console.log('Hello');
-      // await compare(password, results[0].password, (cErr, cResults) => {
-      //   if (cErr) throw cErr;
-      //   const payload = {
-      //     firstName: results[0].firstName,
-      //     lastName: results[0].lastName,
-      //     email: results[0].email,
-      //     password: results[0].password
-      //   };
-      //   if (cResults) {
-      //     jwt.sign(payload, process.env.jwtsecret, {
-      //       expiresIn: '1d'
-      //     }, (err, token) => {
-      //       if (err) throw err;
-      //       res.status(200).json({
-      //         msg: 'Logged in',
-      //         token,
-      //         results: results[0]
-      //       });
-      //     });
-      //   }
-      // });
-      // console.log('working');
-      // const isMatch = compareSync(password, results[0].password);
-      // console.log(isMatch);
-      // // const isMatch = await compare(req.body.password, results[0].password);
-      // if (!isMatch) {
-      //   res.send('Password is Incorrect');
-      // } else {
-      //   const payload = {
-      //     user: {
-      //       firstName: results[0].firstName,
-      //       lastName: results[0].lastName,
-      //       email: results[0].email,
-      //       password: results[0].password
-      //     }
-      //   };
-      //   jwt.sign(payload, process.env.jwtsecret, {
-      //     expiresIn: '1d'
-      //   }, (err, token) => {
-      //     if (err) throw err;
-      //     res.status(200).json({
-      //       msg: 'Logged in',
-      //       token,
-      //       results: results[0]
-      //     });
-      //   });
-      // }
+      await compare(password, results[0].password, (cErr, cResults) => {
+        if (cErr) throw cErr;
+        const payload = {
+          user: {
+            user_id: results[0].user_id,
+            firstName: results[0].firstName,
+            lastName: results[0].lastName,
+            email: results[0].email,
+            password: results[0].password
+          }
+        };
+        if (cResults) {
+          jwt.sign(payload, process.env.jwtsecret, {
+            expiresIn: '1d'
+          }, (err, token) => {
+            if (err) throw err;
+            res.status(200).json({
+              msg: 'Logged in',
+              token,
+              results: results[0]
+            });
+          });
+        }
+      });
+      console.log('working');
+      const isMatch = compareSync(password, results[0].password);
+      console.log(isMatch);
+      // const isMatch = await compare(req.body.password, results[0].password);
+      if (!isMatch) {
+        res.send('Password is Incorrect');
+      } else {
+        const payload = {
+          user: {
+            user_id: results[0].user_id,
+            firstName: results[0].firstName,
+            lastName: results[0].lastName,
+            email: results[0].email,
+            password: results[0].password
+          }
+        };
+        jwt.sign(payload, `${process.env.JWT_SECRET_KEY}`, {
+          expiresIn: '1h'
+        }, (err, token) => {
+          if (err) throw err;
+          res.status(200).json({
+            msg: 'Logged in',
+            token,
+            results: results[0]
+          });
+        });
+      }
     }
   });
 });
@@ -251,7 +298,7 @@ router.get('/products/:book_id', (req, res) => {
   FROM products
   WHERE book_id = ?;
   `;
-  db.query(strQry, [req.params.product_id], (err, results) => {
+  db.query(strQry, [req.params.book_id], (err, results) => {
     if (err) throw err;
     res.json({
       status: 200,
@@ -341,3 +388,28 @@ app.delete('/users/:user_id/favourite', bodyParser.json(), (req, res) => {
     res.send('favourites is empty');
   });
 });
+
+// const express = require("express"); // Used to set up a server
+// const cors = require("cors"); // Used to prevent errors when working locally
+
+// const app = express(); // Initialize express as an app variable
+// app.set("port", process.env.PORT || 8001); // Set the port
+// app.use(express.json()); // Enable the server to handle JSON requests
+// app.use(cors()); // Dont let local development give errors
+
+// // Import routes
+
+// app.get("/", (req, res) => {
+//     res.json({ msg: "The server is ruuning by Lunga Booi!!!" });
+// });
+
+// const userRoute = require("./routes/userRoute");
+// app.use("/users", userRoute);
+
+// const bookRoute = require("./routes/bookRoute");
+// app.use("/books", bookRoute);
+
+// app.listen(app.get("port"), () => {
+//     console.log(`Listening for calls on port ${app.get("port")}`);
+//     console.log("Press Ctrl+C to exit server");
+// });
