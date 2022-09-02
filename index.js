@@ -53,7 +53,7 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
   });
 });
 // Compare function
-async function comparePassword(password, encrypted, res) {
+async function comparePassword (password, encrypted, res) {
   await compare(password, encrypted, (err, results) => {
     if (err) {
       throw err;
