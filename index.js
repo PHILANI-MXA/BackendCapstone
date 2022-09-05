@@ -55,13 +55,13 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
               VALUES ( ?, ?, ?, ?);`;
   db.query(sqlQry, [firstName, lastName, email, password], (err) => {
     if (err) {
-      res.send({
-        status: 200,
+      res.json({
+        status: 400,
         err: 'Email Exists'
       });
     } else {
       res.json({
-        status: 201,
+        status: 200,
         res: `user with the name: ${firstName} added to the database!`
       });
     }
