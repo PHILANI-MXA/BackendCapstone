@@ -11,20 +11,20 @@ const { hash, hashSync, compare, compareSync } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', true);
-  next();
-});
 // app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-//   res.setHeader('Access-Control-Allow-Headers', '*');
-//   res.setHeader('Access-Control-Allow-Methods', '*');
-//   res.setHeader('Access-Control-Allow-Credentials', 'true');
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', '*');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   res.header('Access-Control-Allow-Credentials', true);
 //   next();
 // });
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use(cors({
   origin: ['http://127.0.0.1:8080 ', 'http://localhost:8080'],
@@ -365,14 +365,14 @@ app.get('/users/:user_id/favourites', (req, res) => {
 });
 
 // Add items to the user's specific favourites
-app.post('/users/:user_id/favourites', bodyParser.json(), (req, res) => {
+router.post('/users/:id/favourites', bodyParser.json(), (req, res) => {
   const bd = req.body;
   const sql = `SELECT favourites FROM users WHERE user_id = ${req.params.id}`;
   db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length > 0) {
       let favourites;
-      if (results[0].length == null) {
+      if (results[0].favourites == null) {
         favourites = [];
       } else {
         favourites = JSON.parse(results[0].favourites);
@@ -395,7 +395,7 @@ app.post('/users/:user_id/favourites', bodyParser.json(), (req, res) => {
 });
 
 // Delete items from the specific user's favourites
-app.delete('/users/:user_id/favourite', bodyParser.json(), (req, res) => {
+app.delete('/users/:user_id/favourites', bodyParser.json(), (req, res) => {
   const bd = req.body;
   const sql = `UPDATE users SET favourites = null WHERE user_id = ${req.params.id + bd}`;
   db.query(sql, (err, results) => {
