@@ -55,7 +55,7 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
     } else {
       res.json({
         status: 200,
-        res: `user with the name: ${firstName} added to the database!`
+        msg: `user with the name: ${firstName} added to the database!`
       });
     }
   });
