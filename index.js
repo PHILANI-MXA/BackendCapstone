@@ -6,8 +6,8 @@ const app = express();
 const router = express.Router();
 const path = require('path');
 const cors = require('cors');
-const { hash, hashSync, compare, compareSync } = require('bcrypt');
-
+// const { hash, hashSync, compare, compareSync } = require('bcrypt');
+const { hash, hashSync, compare } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 
@@ -36,7 +36,13 @@ app.listen(PORT, (err) => {
   if (err) throw err;
   console.log(`Sever http://localhost:${PORT} is running`);
 });
-
+router.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 router.get('/', (req, res) => {
   // res.status(200).json({ msg: 'Home' });
   res.sendFile(path.join(__dirname, 'View', 'index.html'));
@@ -68,14 +74,14 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
   db.query(sql, async (err, results) => {
     if (err) throw err;
     if (results.length === 0) {
-      res.send('No email found');
+      res.send(JSON.stringify('No email found'));
     } else {
-      console.log('Still on');
-      console.log('Running');
       await compare(password, results[0].password, (cErr, cResults) => {
         if (cErr) {
           res.status(400).json({ msg: cErr });
         }
+        console.log('Still on');
+        console.log('Running');
         const payload = {
           email,
           password
@@ -94,33 +100,7 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
         } else {
           res.status(209).json({ msg: 'Email is not correct' });
         }
-      })
-      // console.log('working');
-      // const isMatch = compareSync(password, results[0].password);
-      // console.log(isMatch);
-      // const isMatch = await compare(req.body.password, results[0].password);
-      // if (!isMatch) {
-      //   res.send('Password is Incorrect');
-      // } else {
-      //   const payload = {
-      //     user: {
-      //       user_id: results[0].user_id,
-      //       firstName: results[0].firstName,
-      //       lastName: results[0].lastName,
-      //       email: results[0].email,
-      //       password: results[0].password
-      //     }
-      //   };
-      //   jwt.sign(payload, `${process.env.JWT_SECRET_KEY}`, {
-      //     expiresIn: '1h'
-      //   }, (err, token) => {
-      //     if (err) throw err;
-      //     res.status(200).json({
-      //       msg: 'Logged in',
-      //       token,
-      //       results: results[0]
-      //     });
-      //   });
+      });
     }
   });
 });
