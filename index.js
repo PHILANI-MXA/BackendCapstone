@@ -60,32 +60,6 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
     }
   });
 });
-// Compare function
-async function comparePassword (password, encrypted, res) {
-  await compare(password, encrypted, (err, results) => {
-    if (err) {
-      throw err;
-    }
-    const payload = {
-      user_id: results[0].user_id,
-      firstName: results[0].firstName,
-      lastName: results[0].lastName,
-      email: results[0].email,
-      password: results[0].password
-    };
-    jwt.sign(payload, process.env.jwtsecret, {
-      expiresIn: '7d'
-    }, (err, token) => {
-      if (err) throw err;
-      res.status(200).json({
-        msg: 'You are logged in',
-        token,
-        results: results[0]
-      });
-    });
-  });
-}
-// Login users
 // ---------------------------------------------------------------------------------------
 router.post('/users/login', bodyParser.json(), (req, res) => {
   const { email, password } = req.body;
@@ -98,21 +72,16 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
     } else {
       console.log('Still on');
       console.log('Running');
-      comparePassword(password, results[0].password);
-      console.log('Hello');
       await compare(password, results[0].password, (cErr, cResults) => {
-        if (cErr) throw cErr;
+        if (cErr) {
+          res.status(400).json({ msg: cErr });
+        }
         const payload = {
-          user: {
-            user_id: results[0].user_id,
-            firstName: results[0].firstName,
-            lastName: results[0].lastName,
-            email: results[0].email,
-            password: results[0].password
-          }
+          email,
+          password
         };
         if (cResults) {
-          jwt.sign(payload, process.env.jwtsecret, {
+          jwt.sign(payload, process.env.token_key, {
             expiresIn: '1d'
           }, (err, token) => {
             if (err) throw err;
@@ -122,39 +91,39 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
               results: results[0]
             });
           });
+        } else {
+          res.status(209).json({ msg: 'Email is not correct' });
         }
-      });
-      console.log('working');
-      const isMatch = compareSync(password, results[0].password);
-      console.log(isMatch);
+      })
+      // console.log('working');
+      // const isMatch = compareSync(password, results[0].password);
+      // console.log(isMatch);
       // const isMatch = await compare(req.body.password, results[0].password);
-      if (!isMatch) {
-        res.send('Password is Incorrect');
-      } else {
-        const payload = {
-          user: {
-            user_id: results[0].user_id,
-            firstName: results[0].firstName,
-            lastName: results[0].lastName,
-            email: results[0].email,
-            password: results[0].password
-          }
-        };
-        jwt.sign(payload, `${process.env.JWT_SECRET_KEY}`, {
-          expiresIn: '1h'
-        }, (err, token) => {
-          if (err) throw err;
-          res.status(200).json({
-            msg: 'Logged in',
-            token,
-            results: results[0]
-          });
-        });
-      }
+      // if (!isMatch) {
+      //   res.send('Password is Incorrect');
+      // } else {
+      //   const payload = {
+      //     user: {
+      //       user_id: results[0].user_id,
+      //       firstName: results[0].firstName,
+      //       lastName: results[0].lastName,
+      //       email: results[0].email,
+      //       password: results[0].password
+      //     }
+      //   };
+      //   jwt.sign(payload, `${process.env.JWT_SECRET_KEY}`, {
+      //     expiresIn: '1h'
+      //   }, (err, token) => {
+      //     if (err) throw err;
+      //     res.status(200).json({
+      //       msg: 'Logged in',
+      //       token,
+      //       results: results[0]
+      //     });
+      //   });
     }
   });
 });
-
 // Specific users
 router.get('/users/:user_id', (req, res) => {
   // Query
