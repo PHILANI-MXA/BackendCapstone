@@ -11,13 +11,6 @@ const { hash, hashSync, compare, compareSync } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Methods', '*');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   res.header('Access-Control-Allow-Credentials', true);
-//   next();
-// });
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');
@@ -85,7 +78,7 @@ async function comparePassword (password, encrypted, res) {
     }, (err, token) => {
       if (err) throw err;
       res.status(200).json({
-        msg: 'Logged in',
+        msg: 'You are logged in',
         token,
         results: results[0]
       });
@@ -93,46 +86,6 @@ async function comparePassword (password, encrypted, res) {
   });
 }
 // Login users
-
-// router.post('/users/login', bodyParser.json(), (req, res) => {
-//   const sql = 'SELECT * FROM users WHERE email? like';
-//   const email = {
-//     email: req.body.email
-//   };
-//   db.query(sql, email.email, async (err, results) => {
-//     if (err) throw err;
-//     if (results.length === 0) {
-//       res.send('No email found');
-//     } else {
-//       const isMatch = await bcrypt.comparePassword(req.body.password, results[0].password);
-//       if (!isMatch) {
-//         res.send('Password is Incorrect');
-//       } else {
-//         const payload = {
-//           user: {
-//             user_id: results[0].user_id,
-//             firstName: results[0].firstName,
-//             lastName: results[0].lastName,
-//             email: results[0].email,
-//             password: results[0].password
-//           }
-//         };
-//         jwt.sign(payload, process.env.jwtsecret, {
-//           expiresIn: '1d'
-//         }, (err, token) => {
-//           if (err) throw err;
-//           res.send(token);
-//           res.json({
-//             msg: results,
-//             token
-//           });
-//         // res.status(200).send("Logged in");
-//         });
-//       }
-//     }
-//   });
-// });
-
 // ---------------------------------------------------------------------------------------
 router.post('/users/login', bodyParser.json(), (req, res) => {
   const { email, password } = req.body;
