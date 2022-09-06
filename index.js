@@ -10,6 +10,17 @@ const cors = require('cors');
 const { hash, hashSync, compare } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
+const axios = require('axios').default;
+
+const instance = axios.create(
+  {
+    baseURL: '',
+    withCredentials: false,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+    }
+  });
 
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,7 +31,7 @@ app.use(function (req, res, next) {
     if ('OPTIONS' == req.method) {
         return res.sendStatus(200);
     } else {
-        next();
+    next();
     }
 });
 
