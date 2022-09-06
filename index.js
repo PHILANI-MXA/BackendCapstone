@@ -11,12 +11,17 @@ const { hash, hashSync, compare } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    // handle OPTIONS method
+    if ('OPTIONS' == req.method) {
+        return res.sendStatus(200);
+    } else {
+        next();
+    }
 });
 
 app.use(cors({
@@ -36,12 +41,17 @@ app.listen(PORT, (err) => {
   if (err) throw err;
   console.log(`Sever http://localhost:${PORT} is running`);
 });
-router.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
+router.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    // handle OPTIONS method
+    if ('OPTIONS' == req.method) {
+        return res.sendStatus(200);
+    } else {
+        next();
+    }
 });
 router.get('/', (req, res) => {
   // res.status(200).json({ msg: 'Home' });
