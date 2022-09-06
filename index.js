@@ -299,7 +299,7 @@ router.delete('/clinic/:id', (req, res) => {
   `;
   db.query(strQry, [req.params.id], (err, data, fields) => {
     if (err) throw err;
-    res.status(200).json({ msg: `${data.affectedRows} row was affected`} );
+    res.status(200).json({ msg: `${data.affectedRows} row was affected` });
   });
 });
 
