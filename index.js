@@ -285,7 +285,7 @@ router.put('/products', (req, res) => {
 
   db.query(strQry, [bd.id], (err, data) => {
     if (err) throw err;
-    res.send(`number of affected record/s: ${data.affectedRows}`);
+    res.status(200).json({ msg: `number of affected record/s: ${data.affectedRows}` });
   });
 });
 
@@ -299,7 +299,7 @@ router.delete('/clinic/:id', (req, res) => {
   `;
   db.query(strQry, [req.params.id], (err, data, fields) => {
     if (err) throw err;
-    res.send(`${data.affectedRows} row was affected`);
+    res.status(200).json({ msg: `${data.affectedRows} row was affected`} );
   });
 });
 
@@ -341,7 +341,7 @@ router.post('/users/:id/favourites', bodyParser.json(), (req, res) => {
       const sql1 = `UPDATE users SET favourites = ? WHERE user_id = ${req.params.id}`;
       db.query(sql1, JSON.stringify(favourites), (err, results) => {
         if (err) throw results;
-        res.send('Product added to your favourites');
+        res.status(200).json({ msg: 'Product added to your favourites' });
       });
     }
   });
@@ -353,6 +353,6 @@ app.delete('/users/:user_id/favourites', bodyParser.json(), (req, res) => {
   const sql = `UPDATE users SET favourites = null WHERE user_id = ${req.params.id + bd}`;
   db.query(sql, (err, results) => {
     if (err) throw err;
-    res.send('favourites is empty');
+    res.status(200).json({ msg: 'favourites is empty' });
   });
 });
