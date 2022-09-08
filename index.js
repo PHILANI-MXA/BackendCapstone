@@ -6,7 +6,6 @@ const app = express();
 const router = express.Router();
 const path = require('path');
 const cors = require('cors');
-// const { hash, hashSync, compare, compareSync } = require('bcrypt');
 const { hash, hashSync, compare } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
@@ -37,8 +36,16 @@ app.use(function (req, res, next) {
 
 app.use(cors({
   origin: ['http://127.0.0.1:8080 ', 'http://localhost:8080'],
-  credentials: true
+  credentials: true,
+  optionSuccessStatus: 200
 }));
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  optionSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 app.use(
   router,
@@ -65,7 +72,6 @@ router.use(function (req, res, next) {
   }
 });
 router.get('/', (req, res) => {
-  // res.status(200).json({ msg: 'Home' });
   res.sendFile(path.join(__dirname, 'View', 'index.html'));
 });
 app.post('/users/register', bodyParser.json(), (req, res) => {
@@ -97,7 +103,7 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
     if (results.length === 0) {
       res.send(JSON.stringify('No email found'));
     } else {
-      await compare(password, results[0].password, (cErr, cResults) => {
+      compare(password, results[0].password, (cErr, cResults) => {
         if (cErr) {
           res.status(400).json({ msg: cErr });
         }
@@ -109,7 +115,7 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
         };
         if (cResults) {
           jwt.sign(payload, process.env.token_key, {
-            expiresIn: '1d'
+            expiresIn: '7d'
           }, (err, token) => {
             if (err) throw err;
             res.status(200).json({
