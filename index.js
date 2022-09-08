@@ -23,20 +23,20 @@ const instance = axios.create(
   });
 
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    // handle OPTIONS method
-    if ('OPTIONS' == req.method) {
-        return res.sendStatus(200);
-    } else {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  // handle OPTIONS method
+  if ('OPTIONS' == req.method) {
+    return res.sendStatus(200);
+  } else {
     next();
-    }
+  }
 });
 
 app.use(cors({
-  origin: ['http://127.0.0.1:8080 ', 'http://localhost:8080'],
+  origin: ['http://127.0.0.1:8081 ', 'http://localhost:8081'],
   credentials: true
 }));
 
@@ -52,17 +52,17 @@ app.listen(PORT, (err) => {
   if (err) throw err;
   console.log(`Sever http://localhost:${PORT} is running`);
 });
-router.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    // handle OPTIONS method
-    if ('OPTIONS' == req.method) {
-        return res.sendStatus(200);
-    } else {
-        next();
-    }
+router.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  // handle OPTIONS method
+  if ('OPTIONS' == req.method) {
+    return res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 router.get('/', (req, res) => {
   // res.status(200).json({ msg: 'Home' });
