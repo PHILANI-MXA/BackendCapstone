@@ -83,7 +83,7 @@ app.post('/users/register', bodyParser.json(), (req, res) => {
 // ---------------------------------------------------------------------------------------
 router.post('/users/login', bodyParser.json(), (req, res) => {
   const { email, password } = req.body;
-  const sql = `SELECT * FROM users WHERE email like = '${email}';`;
+  const sql = `SELECT * FROM users WHERE email = '${email}';`;
   console.log(req.body);
   db.query(sql, async (err, results) => {
     if (err) throw err;
