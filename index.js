@@ -17,22 +17,9 @@ const instance = axios.create(
     withCredentials: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS'
     }
   });
-
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  // handle OPTIONS method
-  if ('OPTIONS' == req.method) {
-    return res.sendStatus(200);
-  } else {
-    next();
-  }
-});
 
 app.use(cors({
   origin: ['http://127.0.0.1:8080 ', 'http://localhost:8080'],
@@ -135,7 +122,7 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
 router.get('/users/:user_id', (req, res) => {
   // Query
   const strQry =
-      `
+  `
   SELECT user_id, firstName, lastName, email, password
   FROM users
   WHERE user_id = ?;
