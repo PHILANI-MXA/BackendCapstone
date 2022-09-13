@@ -10,22 +10,24 @@ const { hash, hashSync, compare } = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3000;
 const axios = require('axios').default;
+const session = require('express-session');
+
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
 
 const instance = axios.create(
   {
     baseURL: '',
-    withCredentials: false,
+    withCredentials: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS'
     }
   });
 
-app.use(cors({
-  origin: ['http://127.0.0.1:8080 ', 'http://localhost:8080'],
-  credentials: true,
-  optionSuccessStatus: 200
-}));
 const corsOptions = {
   origin: '*',
   credentials: true,
@@ -94,8 +96,6 @@ router.post('/users/login', bodyParser.json(), (req, res) => {
         if (cErr) {
           res.status(400).json({ msg: cErr });
         }
-        console.log('Still on');
-        console.log('Running');
         const payload = {
           email,
           password
